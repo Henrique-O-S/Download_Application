@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include<arpa/inet.h>
 
+#include "macros.h"
+
 /**
  * Struct that contains the necessary fields to parse the command line arguments passed
  */
@@ -31,8 +33,13 @@ struct ftp {
 int parseArguments(struct arguments* args, char* commandLineArg);
 
 int getIPAddress(char *ipAddress, char *hostName);
+
 int clientTCP(char *address, int port);
 
+int receiveFromControlSocket(struct ftp *ftp, char* string, size_t size);
 
+int sendToControlSocket(struct ftp* ftp, char* cmdHeader, char* cmdBody);
+
+int sendCommandInterpretResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, bool readingFile);
 
 #endif // _AUXILIAR_H_

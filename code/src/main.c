@@ -24,18 +24,29 @@ int main(int argc, char *argv[]) {
 
     struct ftp ftp;
     char command[MAX_IP_LENGTH];           // buffer to send commands
-    char responseBuffer[MAX_IP_LENGTH];    // buffer to read commands
-
-    //TO DO: PARSE ARGUMENTS
+    char response[MAX_IP_LENGTH];    // buffer to read commands
 
     // get IP Address
-    char ipAddress[MAX__IP_LENGTH];
+    char ipAddress[MAX_IP_LENGTH];
     if (getIPAddress(ipAddress, args.host_name) < 0) {
         return -1;
     }
     // create and connect socket to server
     if ((ftp.control_socket_fd = createAndConnectSocket(ipAddress, FTP_PORT_NUMBER)) < 0) {
         printf("Error creating new socket\n");
+        return -1;
+    }
+
+    // receive confirmation from server
+    receiveFromControlSocket(&ftp, response, MAX_IP_LENGTH);
+
+    // checking confirmation from server
+    if (responseBuffer[0] == '2') {
+        printf("Expecting username...\n\n");
+    }
+    else
+    {
+        printf("Error in conection...\n\n");
         return -1;
     }
 }

@@ -1,5 +1,4 @@
 #include "auxiliar.h"
-#include "macros.h"
 
 int getIPAddress(char *ipAddress, char *hostName){
     struct hostent *h;
@@ -144,4 +143,71 @@ int parseArguments(struct arguments *args, char *commandLineArg) {
 
 }
 
+int receiveFromControlSocket(struct ftp *ftp, char *response, size_t size) {
+    printf("Receiving from control Socket \n");
+    FILE *fp = fdopen(ftp->control_socket_fd, "r");
+    do {
+        memset(response, 0, size);
+        response = fgets(response, size, fp);
+        printf("%s", response);
+    } while (('1' > response[0] || response[0] > '5') || response[3] != ' ');
+    return 0;
+}
 
+int sendToControlSocket(struct ftp *ftp, char *cmdHeader, char *cmdBody) {
+    printf("Sending to control Socket > %s %s\n", cmdHeader, cmdBody);
+    int bytes = write(ftp->control_socket_fd, cmdHeader, strlen(cmdHeader));
+    if (bytes != strlen(cmdHeader))
+        return -1;
+    bytes = write(ftp->control_socket_fd, " ", 1);
+    if (bytes != 1)
+        return -1;
+    bytes = write(ftp->control_socket_fd, cmdBody, strlen(cmdBody));
+    if (bytes != strlen(cmdBody))
+        return -1;
+    bytes = write(ftp->control_socket_fd, "\n", 1);
+    if (bytes != 1)
+        return -1;
+    return 0;
+}
+
+int sendCommandInterpretResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody, char *response, size_t responseLength, bool readingFile) {
+    if (sendToControlSocket(ftp, cmdHeader, cmdBody) < 0) {
+        printf("Error Sending Command  %s %s\n", cmdHeader, cmdBody);
+        return -1;
+    }
+    int code;
+    while (1) {
+        receiveFromControlSocket(ftp, response, responseLength);
+        code = response[0] - '0';
+        switch (code) {
+            case 1:
+                // expecting another reply
+                if (readingFile) 
+                    return 2;
+                else 
+                    break;
+            case 2:
+                // request action success
+                return 2;
+            case 3:
+                // needs aditional information
+                return 3;
+            case 4:
+                // try again
+                if (sendToControlSocket(ftp, cmdHeader, cmdBody) < 0) {
+                    printf("Error Sending Command  %s %s\n", cmdHeader, cmdBody);
+                    return -1;
+                }
+                break;
+            case 5:
+                // error in sending command, closing control socket , exiting application
+                printf("Command wasn\'t accepted... \n");
+                close(ftp->control_socket_fd);
+                exit(-1);
+                break;
+            default:
+                break;
+        }
+    }
+}
