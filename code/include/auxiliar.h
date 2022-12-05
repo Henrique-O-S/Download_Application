@@ -9,7 +9,30 @@
 #include <netinet/in.h>
 #include<arpa/inet.h>
 
+/**
+ * Struct that contains the necessary fields to parse the command line arguments passed
+ */
+struct arguments {
+    char user[MAX_LENGTH]; /**< user string */
+    char password[MAX_LENGTH]; /**< password string */
+    char host_name[MAX_LENGTH]; /**< host name string */
+    char file_path[MAX_LENGTH]; /**< file path string */   
+    char file_name[MAX_LENGTH]; /**< file name string */ 
+};
+
+/**
+ * Struct that contains the control and data file descriptors for the FTP
+ */
+struct ftp {
+    int control_socket_fd; /**< file descriptor to control socket */
+    int data_socket_fd; /**< file descriptor to data socket */
+};
+
+int parseArguments(struct arguments* args, char* commandLineArg);
 
 int getIPAddress(char *ipAddress, char *hostName);
+int clientTCP(char *address, int port);
+
+
 
 #endif // _AUXILIAR_H_
