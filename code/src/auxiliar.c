@@ -31,12 +31,8 @@ int getIPAddress(char *ipAddress, char *hostName){
 }
 
 int clientTCP(char *address, int port){
-    if (argc > 1)
-        printf("**** No arguments needed. They will be ignored. Carrying ON.\n");
     int sockfd;
     struct sockaddr_in server_addr;
-    char buf[] = "Mensagem de teste na travessia da pilha TCP/IP\n";
-    size_t bytes;
 
     /*server address handling*/
     bzero((char *) &server_addr, sizeof(server_addr));
@@ -60,7 +56,7 @@ int clientTCP(char *address, int port){
 
 int parseArguments(struct arguments *args, char *commandLineArg) {
 
-    printf("Parsing command line arguments...\n");
+    printf("Parsing command line arguments\n");
     
     // verifying FTP protocol
     char *token = strtok(commandLineArg, ":");
@@ -137,14 +133,14 @@ int parseArguments(struct arguments *args, char *commandLineArg) {
         strcpy(args->file_name, token);
     }
 
-    printf("Parsed command line arguments.\n\n");
+    printf("Parsed command line arguments.\n");
 
     return 0;
 
 }
 
 int receiveFromControlSocket(struct ftp *ftp, char *response, size_t size) {
-    printf("Receiving from control Socket \n");
+    printf("Receiving from control socket\n");
     FILE *fp = fdopen(ftp->control_socket_fd, "r");
     do {
         memset(response, 0, size);
@@ -211,3 +207,125 @@ int sendCommandInterpretResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody
         }
     }
 }
+
+int login(struct ftp *ftp, char *username, char *password) {
+    printf("Sending Username...\n");
+    char response[MAX_IP_LENGTH];
+    int rtr = sendCommandInterpretResponse(ftp, "user", username, response, MAX_IP_LENGTH, false);
+    if (rtr == 3) {
+        printf("Sent Username...\n");
+    }
+    else {
+        printf("Error sending Username...\n");
+        return -1;
+    }
+    printf("Sending Password...\n");
+    rtr = sendCommandInterpretResponse(ftp, "pass", password, response, MAX_IP_LENGTH, false);
+    if (rtr == 2) {
+        printf("Sent Password...\n");
+    }
+    else {
+        printf("Error sending Password...\n");
+        return -1;
+    }
+    return 0;
+}
+
+int cwd(struct ftp* ftp, char* path) {
+    char response[MAX_IP_LENGTH];
+    if(sendCommandInterpretResponse(ftp, "CWD", path, response, MAX_IP_LENGTH, false) < 0){
+        printf("Error sending cwd command\n");
+        return -1;
+    }
+	return 0;
+}
+
+int getServerPortForFile(struct ftp *ftp) {
+    char firstByte[4];
+    char secondByte[4];
+    memset(firstByte, 0, 4);
+    memset(secondByte, 0, 4);
+    char response[MAX_IP_LENGTH];
+    int ipPart1, ipPart2, ipPart3, ipPart4;
+    int port1, port2;
+    int rtr = sendCommandInterpretResponse(ftp, "pasv", "", response, MAX_IP_LENGTH, false);
+    if (rtr < 0) {
+        printf("Error sending pasv command\n");
+        return -1;
+    }
+    else if (rtr == 2) {
+        // starting to process information
+        if ((sscanf(response, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)",
+                    &ipPart1, &ipPart2, &ipPart3, &ipPart4, &port1, &port2)) < 0) {
+            printf("ERROR: Cannot process information to calculating port.\n");
+            return -1;
+        }
+    }
+    else {
+        printf("Error receiving pasv command response from server\n");
+        return -1;
+    }
+
+    char ip[MAX_IP_LENGTH];
+    sprintf(ip, "%d.%d.%d.%d", ipPart1, ipPart2, ipPart3, ipPart4);
+    int port = port1 * 256 + port2;
+    printf("Port number %d\n", port);
+    if ((ftp->data_socket_fd = createAndConnectSocket(ip, port)) < 0) {
+        printf("Error creating new socket\n");
+        return -1;
+    }
+    return 0;
+}
+
+int retr(struct ftp* ftp, char* fileName){
+    char response[MAX_IP_LENGTH];
+    if(sendCommandInterpretResponse(ftp, "RETR", fileName, response, MAX_IP_LENGTH, true) < 0){
+        printf("Error sending retr command\n");
+        return -1;
+    }
+	return 0;
+}
+
+int downloadFile(struct ftp* ftp, char * fileName){
+    FILE *fp = fopen(fileName, "w");
+    if (fp == NULL){
+        printf("Error opening or creating file\n");
+        return -1;
+    }
+    char buf[1024];
+    int bytes;
+    printf("Starting to download file with name %s\n", fileName);
+    while((bytes = read(ftp->data_socket_fd, buf, sizeof(buf)))){
+        if(bytes < 0){
+            printf("Error reading from data socket\n");
+            return -1;
+        }
+        if((bytes = fwrite(buf, bytes, 1, fp)) < 0){
+            printf("Error writing data to file\n");
+            return -1;
+        }
+    }
+
+    printf("Finished dowloading file\n");
+
+    if(fclose(fp)){
+        printf("Error closing file\n");
+        return -1;
+    }
+    close(ftp->data_socket_fd);
+    char response[MAX_IP_LENGTH];
+    receiveFromControlSocket(ftp, response, MAX_IP_LENGTH);
+    if (response[0] != '2')
+        return -1;
+    return 0;
+}
+
+int disconnectFromSocket(struct ftp* ftp) {
+    char response[MAX_LENGTH];
+    if(sendCommandInterpretResponse(ftp, "QUIT", "", response, MAX_IP_LENGTH, false) != 2){
+        printf("Error sending quit command\n");
+        return -1;
+    }
+	return 0;
+}
+

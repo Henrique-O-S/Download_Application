@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     // create and connect socket to server
-    if ((ftp.control_socket_fd = createAndConnectSocket(ipAddress, FTP_PORT_NUMBER)) < 0) {
+    if ((ftp.control_socket_fd = clientTCP(ipAddress, FTP_PORT_NUMBER)) < 0) {
         printf("Error creating new socket\n");
         return -1;
     }
@@ -49,4 +49,44 @@ int main(int argc, char *argv[]) {
         printf("Error in conection...\n\n");
         return -1;
     }
+
+    // login in server
+    if (login(&ftp, args.user, args.password) < 0) {
+        printf("Login failed...\n\n");
+        return -1;
+    }
+
+    // change working directory in server
+    if (strlen(args.file_path) > 0) {
+        if (changeWorkingDirectory(&ftp, args.file_path) < 0)
+        {
+            printf("Error changing directory\n");
+            return -1;
+        }
+    }
+
+    // sends pasv command to get ip address and port to receive the file
+    if (getServerPortForFile(&ftp) < 0){
+        printf("Error getting server Port for file\n");
+        return -1;
+    }
+
+    // sends retr command to begin file transfer
+    if(retr(&ftp, args.file_name) < 0){
+        printf("Error sending comand retr\n");
+        return -1;
+    }
+
+    // downloads file
+    if(downloadFile(&ftp, args.file_name) < 0){
+        printf("Error downloading file\n");
+        return -1;
+    }
+
+    // disconnects from server
+    if(disconnectFromSocket(&ftp) < 0){
+        printf("Error disconnecting from server\n");
+        return -1;
+    }
+    return 0;
 }

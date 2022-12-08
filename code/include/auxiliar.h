@@ -42,4 +42,17 @@ int sendToControlSocket(struct ftp* ftp, char* cmdHeader, char* cmdBody);
 
 int sendCommandInterpretResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, bool readingFile);
 
+int login(struct ftp* ftp, char* username, char* password);
+
+int cwd(struct ftp* ftp, char* path);
+
+int getServerPortForFile(struct ftp *ftp);
+
+int retr(struct ftp* ftp, char* fileName);
+
+int downloadFile(struct ftp* ftp, char* fileName);
+
+int disconnectFromSocket(struct ftp* ftp);
+
+
 #endif // _AUXILIAR_H_
