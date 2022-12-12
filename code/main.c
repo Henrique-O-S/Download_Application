@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "include/auxiliar.h"
 
+//./main ftp://ftp.up.pt/pub/...
+
 // TO DO
 /* - unique use case: connect, login host, passive, get path, success (file saved in CWD) or un-success (indicating failing phase)
 - challenging programming aspects: gethostbyname, sockets, control connection, passive, data connection */
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]) {
     printf("Host name: %s\n", args.host_name);
     printf("File path: %s\n", args.file_path);
     printf("File name: %s\n", args.file_name);
-
+    
     struct ftp ftp;
     char response[MAX_IP_LENGTH];    // buffer to read commands
 
@@ -30,6 +32,7 @@ int main(int argc, char *argv[]) {
     if (getIPAddress(ipAddress, args.host_name) < 0) {
         return -1;
     }
+
     // create and connect socket to server
     if ((ftp.control_socket_fd = clientTCP(ipAddress, FTP_PORT_NUMBER)) < 0) {
         printf("Error creating new socket\n");
@@ -49,7 +52,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    // login in server
+    // login in the server
     if (login(&ftp, args.user, args.password) < 0) {
         printf("Login failed...\n\n");
         return -1;
@@ -83,9 +86,10 @@ int main(int argc, char *argv[]) {
     }
 
     // disconnects from server
-    if(disconnectFromSocket(&ftp) < 0){
+    if(disconnect(&ftp) < 0){
         printf("Error disconnecting from server\n");
         return -1;
     }
+
     return 0;
 }

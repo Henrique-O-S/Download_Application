@@ -42,7 +42,7 @@ int receiveFromControlSocket(struct ftp *ftp, char* string, size_t size);
 
 int sendToControlSocket(struct ftp* ftp, char* cmdHeader, char* cmdBody);
 
-int sendCommandInterpretResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, int readingFile);
+int sendCommandReceiveResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, int readingFile);
 
 int login(struct ftp* ftp, char* username, char* password);
 
@@ -54,7 +54,7 @@ int retr(struct ftp* ftp, char* fileName);
 
 int downloadFile(struct ftp* ftp, char* fileName);
 
-int disconnectFromSocket(struct ftp* ftp);
+int disconnect(struct ftp* ftp);
 
 
 #endif // _AUXILIAR_H_
