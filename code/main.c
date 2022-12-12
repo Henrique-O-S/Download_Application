@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
     printf("File name: %s\n", args.file_name);
 
     struct ftp ftp;
-    //char command[MAX_IP_LENGTH];            buffer to send commands
     char response[MAX_IP_LENGTH];    // buffer to read commands
 
     // get IP Address

@@ -32,11 +32,11 @@ struct ftp {
     int data_socket_fd; /**< file descriptor to data socket */
 };
 
-int parseArguments(struct arguments* args, char* commandLineArg);
-
 int getIPAddress(char *ipAddress, char *hostName);
 
 int clientTCP(char *address, int port);
+
+int parseArguments(struct arguments* args, char* commandLineArg);
 
 int receiveFromControlSocket(struct ftp *ftp, char* string, size_t size);
 
