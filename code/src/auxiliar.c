@@ -270,7 +270,7 @@ int getServerPortForFile(struct ftp *ftp) {
     sprintf(ip, "%d.%d.%d.%d", ipPart1, ipPart2, ipPart3, ipPart4);
     int port = port1 * 256 + port2;
     printf("Port number %d\n", port);
-    if ((ftp->data_socket_fd = createAndConnectSocket(ip, port)) < 0) {
+    if ((ftp->data_socket_fd = clientTCP(ip, port)) < 0) {
         printf("Error creating new socket\n");
         return -1;
     }
