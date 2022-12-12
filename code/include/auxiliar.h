@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 
 #include <netdb.h>
@@ -15,11 +16,11 @@
  * Struct that contains the necessary fields to parse the command line arguments passed
  */
 struct arguments {
-    char user[MAX_LENGTH]; /**< user string */
-    char password[MAX_LENGTH]; /**< password string */
-    char host_name[MAX_LENGTH]; /**< host name string */
-    char file_path[MAX_LENGTH]; /**< file path string */   
-    char file_name[MAX_LENGTH]; /**< file name string */ 
+    char user[MAX_IP_LENGTH]; /**< user string */
+    char password[MAX_IP_LENGTH]; /**< password string */
+    char host_name[MAX_IP_LENGTH]; /**< host name string */
+    char file_path[MAX_IP_LENGTH]; /**< file path string */   
+    char file_name[MAX_IP_LENGTH]; /**< file name string */ 
 };
 
 /**
@@ -40,7 +41,7 @@ int receiveFromControlSocket(struct ftp *ftp, char* string, size_t size);
 
 int sendToControlSocket(struct ftp* ftp, char* cmdHeader, char* cmdBody);
 
-int sendCommandInterpretResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, bool readingFile);
+int sendCommandInterpretResponse(struct ftp* ftp, char* cmdHeader,  char* cmdBody, char* response, size_t responseLength, int readingFile);
 
 int login(struct ftp* ftp, char* username, char* password);
 

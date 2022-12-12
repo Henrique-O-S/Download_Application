@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "auxiliar.h"
+#include "include/auxiliar.h"
 
 // TO DO
 /* - unique use case: connect, login host, passive, get path, success (file saved in CWD) or un-success (indicating failing phase)
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     printf("File name: %s\n", args.file_name);
 
     struct ftp ftp;
-    char command[MAX_IP_LENGTH];           // buffer to send commands
+    //char command[MAX_IP_LENGTH];            buffer to send commands
     char response[MAX_IP_LENGTH];    // buffer to read commands
 
     // get IP Address
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     receiveFromControlSocket(&ftp, response, MAX_IP_LENGTH);
 
     // checking confirmation from server
-    if (responseBuffer[0] == '2') {
+    if (response[0] == '2') {
         printf("Expecting username...\n\n");
     }
     else
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     // change working directory in server
     if (strlen(args.file_path) > 0) {
-        if (changeWorkingDirectory(&ftp, args.file_path) < 0)
+        if (cwd(&ftp, args.file_path) < 0)
         {
             printf("Error changing directory\n");
             return -1;

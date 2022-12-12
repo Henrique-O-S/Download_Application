@@ -1,4 +1,4 @@
-#include "auxiliar.h"
+#include "../include/auxiliar.h"
 
 int getIPAddress(char *ipAddress, char *hostName){
     struct hostent *h;
@@ -167,7 +167,7 @@ int sendToControlSocket(struct ftp *ftp, char *cmdHeader, char *cmdBody) {
     return 0;
 }
 
-int sendCommandInterpretResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody, char *response, size_t responseLength, bool readingFile) {
+int sendCommandInterpretResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody, char *response, size_t responseLength, int readingFile) {
     if (sendToControlSocket(ftp, cmdHeader, cmdBody) < 0) {
         printf("Error Sending Command  %s %s\n", cmdHeader, cmdBody);
         return -1;
@@ -211,7 +211,7 @@ int sendCommandInterpretResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody
 int login(struct ftp *ftp, char *username, char *password) {
     printf("Sending Username...\n");
     char response[MAX_IP_LENGTH];
-    int rtr = sendCommandInterpretResponse(ftp, "user", username, response, MAX_IP_LENGTH, false);
+    int rtr = sendCommandInterpretResponse(ftp, "user", username, response, MAX_IP_LENGTH, 0);
     if (rtr == 3) {
         printf("Sent Username...\n");
     }
@@ -220,7 +220,7 @@ int login(struct ftp *ftp, char *username, char *password) {
         return -1;
     }
     printf("Sending Password...\n");
-    rtr = sendCommandInterpretResponse(ftp, "pass", password, response, MAX_IP_LENGTH, false);
+    rtr = sendCommandInterpretResponse(ftp, "pass", password, response, MAX_IP_LENGTH, 0);
     if (rtr == 2) {
         printf("Sent Password...\n");
     }
@@ -233,7 +233,7 @@ int login(struct ftp *ftp, char *username, char *password) {
 
 int cwd(struct ftp* ftp, char* path) {
     char response[MAX_IP_LENGTH];
-    if(sendCommandInterpretResponse(ftp, "CWD", path, response, MAX_IP_LENGTH, false) < 0){
+    if(sendCommandInterpretResponse(ftp, "CWD", path, response, MAX_IP_LENGTH, 0) < 0){
         printf("Error sending cwd command\n");
         return -1;
     }
@@ -248,7 +248,7 @@ int getServerPortForFile(struct ftp *ftp) {
     char response[MAX_IP_LENGTH];
     int ipPart1, ipPart2, ipPart3, ipPart4;
     int port1, port2;
-    int rtr = sendCommandInterpretResponse(ftp, "pasv", "", response, MAX_IP_LENGTH, false);
+    int rtr = sendCommandInterpretResponse(ftp, "pasv", "", response, MAX_IP_LENGTH, 0);
     if (rtr < 0) {
         printf("Error sending pasv command\n");
         return -1;
@@ -279,7 +279,7 @@ int getServerPortForFile(struct ftp *ftp) {
 
 int retr(struct ftp* ftp, char* fileName){
     char response[MAX_IP_LENGTH];
-    if(sendCommandInterpretResponse(ftp, "RETR", fileName, response, MAX_IP_LENGTH, true) < 0){
+    if(sendCommandInterpretResponse(ftp, "RETR", fileName, response, MAX_IP_LENGTH, 1) < 0){
         printf("Error sending retr command\n");
         return -1;
     }
@@ -321,8 +321,8 @@ int downloadFile(struct ftp* ftp, char * fileName){
 }
 
 int disconnectFromSocket(struct ftp* ftp) {
-    char response[MAX_LENGTH];
-    if(sendCommandInterpretResponse(ftp, "QUIT", "", response, MAX_IP_LENGTH, false) != 2){
+    char response[MAX_IP_LENGTH];
+    if(sendCommandInterpretResponse(ftp, "QUIT", "", response, MAX_IP_LENGTH, 0) != 2){
         printf("Error sending quit command\n");
         return -1;
     }

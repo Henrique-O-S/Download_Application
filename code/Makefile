@@ -8,8 +8,8 @@ CFLAGS = -Wall
 SRC = src/
 INCLUDE = include/
 
-HEADERS = $(INCLUDE)/aux.h $(INCLUDE)/macros.h
-OBJECTS = main.o aux.o
+HEADERS = $(INCLUDE)/auxiliar.h $(INCLUDE)/macros.h
+OBJECTS = main.o $(SRC)/auxiliar.o
 
 # Targets
 
