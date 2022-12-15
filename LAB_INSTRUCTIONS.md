@@ -95,16 +95,24 @@ Caso nao estejam
 
 Adicionar Rc como default router para TUX2 e TUX3
 
-- route add default gw 172.16.Y0.254 (no TUX2 e TUX4)
+- route add default gw 172.16.Y1.254 (no TUX2 e TUX4)
 
 Adicionar rotas em TUX2 e Rc
 
-- route add default gw 172.16.Y0.254 (no TUX2)
+- /ip route add 172.16.Y0.0/24 via 172.16.Y1.253
 
-/ip route add 172.16.Y0.0/24 via 172.16.Y1.253
+- (router) -> /ip route add dst-address=0.0.0.0/0 gateway=172.16.2.254 (ONly for lab i320)
+- (router) -> /ip route add dst-address=172.16.Y0.0/24 gateway=172.16.Y1.253
+- (router) -> /ip route print
 
 apagar uma rota --> route del -net 172.16.10.0 gw 172.16.11.253 net mask 255.255.255.0
 
+## DNS (5)
+
+### Passo 1
+
+- sudo nano /etc/resolv.conf
+- nameserver 172.16.2.1
 
 
 
