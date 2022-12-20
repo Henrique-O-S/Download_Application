@@ -44,17 +44,17 @@ int main(int argc, char *argv[]) {
 
     // checking confirmation from server
     if (response[0] == '2') {
-        printf("Expecting username...\n\n");
+        printf("Expecting username\n");
     }
     else
     {
-        printf("Error in conection...\n\n");
+        printf("Error in conection\n");
         return -1;
     }
 
     // login in the server
     if (login(&ftp, args.user, args.password) < 0) {
-        printf("Login failed...\n\n");
+        printf("Login failed\n");
         return -1;
     }
 

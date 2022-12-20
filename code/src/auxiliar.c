@@ -199,7 +199,7 @@ int sendCommandReceiveResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody, 
                 break;
             case 5:
                 // error in sending command, closing control socket , exiting application
-                printf("Command wasn\'t accepted... \n");
+                printf("Command wasn\'t accepted\n");
                 close(ftp->control_socket_fd);
                 exit(-1);
                 break;
@@ -210,24 +210,26 @@ int sendCommandReceiveResponse(struct ftp *ftp, char *cmdHeader, char *cmdBody, 
 }
 
 int login(struct ftp *ftp, char *username, char *password) {
-    printf("Sending Username...\n");
+    printf("Sending Username\n");
     char response[MAX_IP_LENGTH];
     int rtr = sendCommandReceiveResponse(ftp, "user", username, response, MAX_IP_LENGTH, 0);
-    if (rtr == 3) {
-        printf("Sent Username...\n");
+    if (rtr == 3 || rtr == 2) {
+        printf("Sent Username\n");
     }
     else {
-        printf("Error sending Username...\n");
+        printf("Error sending Username\n");
         return -1;
     }
-    printf("Sending Password...\n");
-    rtr = sendCommandReceiveResponse(ftp, "pass", password, response, MAX_IP_LENGTH, 0);
-    if (rtr == 2) {
-        printf("Sent Password...\n");
-    }
-    else {
-        printf("Error sending Password...\n");
-        return -1;
+    if (rtr == 3){
+        printf("Sending Password\n");
+        rtr = sendCommandReceiveResponse(ftp, "pass", password, response, MAX_IP_LENGTH, 0);
+        if (rtr == 2) {
+            printf("Sent Password\n");
+        }
+        else {
+            printf("Error sending Password\n");
+            return -1;
+        }
     }
     return 0;
 }
