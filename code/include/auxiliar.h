@@ -36,7 +36,7 @@ int getIPAddress(char *ipAddress, char *hostName);
 
 int clientTCP(char *address, int port);
 
-int parseArguments(struct arguments* args, char* commandLineArg);
+int parseURL(struct arguments* args, char* commandLineArg);
 
 int receiveFromControlSocket(struct ftp *ftp, char* string, size_t size);
 

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     // parse command line arguments
     struct arguments args;
-    if (parseArguments(&args, argv[1]) != 0) {
+    if (parseURL(&args, argv[1]) != 0) {
         return -1;
     }
     printf("User: %s\n", args.user);

@@ -55,7 +55,7 @@ int clientTCP(char *address, int port){
     return sockfd;
 }
 
-int parseArguments(struct arguments *args, char *commandLineArg) {
+int parseURL(struct arguments *args, char *commandLineArg) {
 
     printf("Parsing command line arguments\n");
     
